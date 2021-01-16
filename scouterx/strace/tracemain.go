@@ -342,7 +342,7 @@ func findXLogDiscard(tctx *netio.TraceContext, elapsed int32) netdata.XlogDiscar
 }
 
 func StartMethod(ctx context.Context) *netdata.MethodStep {
-	return StartMethodWithParam(ctx, nil)
+	return StartMethodWithParam(ctx)
 }
 
 func StartMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
