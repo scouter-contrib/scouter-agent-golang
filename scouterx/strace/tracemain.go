@@ -342,10 +342,14 @@ func findXLogDiscard(tctx *netio.TraceContext, elapsed int32) netdata.XlogDiscar
 }
 
 func StartMethod(ctx context.Context) *netdata.MethodStep {
-	return StartMethodWithParam(ctx)
+	return startMethodWithParam(ctx)
 }
 
 func StartMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
+	return startMethodWithParam(ctx, params)
+}
+
+func startMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
 	defer common.ReportScouterPanic()
 
 	if ctx == nil {
