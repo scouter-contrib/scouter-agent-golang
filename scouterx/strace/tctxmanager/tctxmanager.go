@@ -6,7 +6,7 @@ import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/cachemap"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"time"
 )
 

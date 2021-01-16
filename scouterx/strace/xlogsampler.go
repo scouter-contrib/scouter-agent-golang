@@ -2,8 +2,8 @@ package strace
 
 import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
-	"github.com/scouter-project/scouter-go-lib/common/util"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"math/rand"
 	"sync"
 )

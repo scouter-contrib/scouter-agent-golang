@@ -1,9 +1,9 @@
 package netio
 
 import (
-	util2 "github.com/scouter-contrib/scouter-agent-golang/scouterx/util"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
-	"github.com/scouter-project/scouter-go-lib/common/util/keygen"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util/keygen"
 	"strconv"
 	"time"
 )
@@ -90,7 +90,7 @@ func (tctx (TraceContext)) ToXlog(discardType netdata.XlogDiscardType, elapsed i
 	xlog.ThreadNameHash = SendHashedMessage(strconv.Itoa(int(tctx.Gxid)))
 	xlog.SqlCount = tctx.SqlCount
 	xlog.SqlTime = tctx.SqlTime
-	xlog.Ipaddr = util2.IpToBytes(tctx.RemoteIp)
+	xlog.Ipaddr = util.IpToBytes(tctx.RemoteIp)
 	xlog.Userid = tctx.Userid
 	xlog.HasDump = 0
 	xlog.Error = tctx.Error

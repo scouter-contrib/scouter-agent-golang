@@ -2,8 +2,8 @@ package conf
 
 import (
 	"github.com/magiconair/properties"
-	"github.com/scouter-project/scouter-go-lib/common/logger"
-	"github.com/scouter-project/scouter-go-lib/common/util"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/logger"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"os"
 	"path/filepath"
 	"strings"

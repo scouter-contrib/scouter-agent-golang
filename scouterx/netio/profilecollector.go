@@ -2,7 +2,7 @@ package netio
 
 import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 )
 
 var aconf = conf.GetInstance()

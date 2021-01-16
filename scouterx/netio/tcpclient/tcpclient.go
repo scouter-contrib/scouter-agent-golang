@@ -2,10 +2,10 @@ package tcpclient
 
 import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
-	"github.com/scouter-project/scouter-go-lib/common/constants/netcafeconstant"
-	"github.com/scouter-project/scouter-go-lib/common/constants/tcpflag"
-	"github.com/scouter-project/scouter-go-lib/common/logger"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/constants/netcafeconstant"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/constants/tcpflag"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/logger"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"net"
 	"strconv"
 	"sync"

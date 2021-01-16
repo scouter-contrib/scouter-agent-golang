@@ -6,7 +6,7 @@ import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/counter/gocounter"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/strace/tctxmanager"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"time"
 )
 

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/scouter-project/scouter-go-lib/common/factory/channelfactory"
-	"github.com/scouter-project/scouter-go-lib/common/logger"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/factory/channelfactory"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/logger"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 )
 
 var once sync.Once

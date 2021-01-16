@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"io/ioutil"
 )
 

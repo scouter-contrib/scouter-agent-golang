@@ -6,9 +6,9 @@ import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/dump"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/strace/tctxmanager"
-	"github.com/scouter-project/scouter-go-lib/common/logger"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
-	"github.com/scouter-project/scouter-go-lib/common/util"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/logger"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"strconv"
 )
 
@@ -121,7 +121,7 @@ func GetGoroutineDetail(param netdata.Pack) *netdata.MapPack {
 	p.Put("Thread Id", -1);
 	p.Put("State", "n/a");
 	p.Put("Thread Name", "[goroutine] " + strconv.Itoa(goid));
-	p.Put("Stack Trace", "not yet supported");
+	p.Put("Stack Trace", "stacktrace for goroutine is not yet supported");
 	p.Put("Last trace method", tctx.LastMethod);
 
 	return p

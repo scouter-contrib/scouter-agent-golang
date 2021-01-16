@@ -3,7 +3,7 @@ package tcpclient
 import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
-	"github.com/scouter-project/scouter-go-lib/common/logger"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/logger"
 	"time"
 )
 

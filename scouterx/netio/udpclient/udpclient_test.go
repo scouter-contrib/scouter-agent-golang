@@ -2,8 +2,8 @@ package udpclient
 
 import (
 	"container/list"
-	timeconstants "github.com/scouter-project/scouter-go-lib/common/constants/timeconstant"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
+	timeconstants "github.com/scouter-contrib/scouter-agent-golang/scouterx/common/constants/timeconstant"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"testing"
 	"time"
 )

@@ -5,9 +5,9 @@ import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/cacheset"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/udpsender"
-	"github.com/scouter-project/scouter-go-lib/common/netdata"
-	"github.com/scouter-project/scouter-go-lib/common/netdata/texttype"
-	"github.com/scouter-project/scouter-go-lib/common/util"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata/texttype"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"time"
 )
 
