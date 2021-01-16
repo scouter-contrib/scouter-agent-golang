@@ -1,6 +1,7 @@
 package netio
 
 import (
+	"fmt"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/cacheset"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/udpsender"
@@ -35,6 +36,16 @@ func ResetTextSent() {
 	loginSent.Clear()
 	descSent.Clear()
 	stackElementSent.Clear()
+}
+func reportScouterPanicFinal() {
+	if r := recover(); r != nil {
+		fmt.Printf("[scouter][panic][FATAL]%+v\n", r)
+	}
+}
+
+func SendPanic(message string) {
+	reportScouterPanicFinal()
+	SendAlert(netdata.AlertFatal, "Panic", message)
 }
 
 func SendServiceName(name string) int32 {
@@ -139,6 +150,18 @@ func SendError(name string) int32 {
 	errorSent.Add(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.ERROR, hash, name})
 	return hash
+}
+
+func SendAlert(level netdata.AlertLevel, title, message string) {
+	if title == "" {
+		return
+	}
+	pack := netdata.NewAlertPack()
+	pack.Level = level
+	pack.Title = title
+	pack.Message = message
+
+	SendPackDirect(pack)
 }
 
 func SendLogin(name string) int32 {

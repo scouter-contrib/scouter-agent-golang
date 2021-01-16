@@ -38,11 +38,9 @@ func TestXlogWithGo(t *testing.T) {
 		defer EndService(ctx)
 		testMethod1(ctx)
 
-		go func() {
-			ctxForGoroutine := StartChildGoroutineService(ctx, "testMethod4Go()")
-			defer EndChildGoroutineService(ctxForGoroutine)
-			testMethod4Go(ctxForGoroutine)
-		}()
+		GoWithTrace(ctx, "testMethod4Go()", func(cascadeGoCtx context.Context) {
+			testMethod4Go(cascadeGoCtx)
+		})
 		time.Sleep(time.Duration(30) * time.Millisecond)
 
 		testMethod1(ctx)

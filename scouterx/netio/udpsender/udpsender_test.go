@@ -18,7 +18,8 @@ func TestSendPerfPack(t *testing.T) {
 	perfPack.ObjName = "testObj"
 	perfPack.Time = time.Now().Unix()
 	perfPack.Timetype = timeconstants.REALTIME
-	buffer := netdata.NewDataOutputX(nil).WritePack(perfPack).Bytes()
+	pack, _ := netdata.NewDataOutputX(nil).WritePack(perfPack)
+	buffer := pack.Bytes()
 	sender.AddBuffer(buffer)
 	fmt.Printf("queue size: %d", sender.getQueueSize())
 	for true {

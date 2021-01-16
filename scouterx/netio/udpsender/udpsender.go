@@ -37,7 +37,8 @@ func GetInstance() *UDPSender {
 }
 
 func (udpSender *UDPSender) AddPack(pack netdata.Pack) {
-	bytes := netdata.NewDataOutputX(nil).WritePack(pack).Bytes()
+	writePack, _ := netdata.NewDataOutputX(nil).WritePack(pack)
+	bytes := writePack.Bytes()
 	select {
 	case udpSender.udpChannel <- bytes:
 	default:
@@ -54,7 +55,8 @@ func (udpSender *UDPSender) AddBuffer(buffer []byte) {
 }
 
 func (udpSender *UDPSender) SendPackDirect(pack netdata.Pack) {
-	bytes := netdata.NewDataOutputX(nil).WritePack(pack).Bytes()
+	writePack, _ := netdata.NewDataOutputX(nil).WritePack(pack)
+	bytes := writePack.Bytes()
 	go udpSender.udpClient.WriteBuffer(bytes)
 }
 

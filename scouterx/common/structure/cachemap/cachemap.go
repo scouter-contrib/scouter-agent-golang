@@ -15,6 +15,20 @@ type CacheMap struct {
 	maxSize  int
 }
 
+func (m *CacheMap) GetValues() []interface{} {
+	l := make([]interface{}, 0, int(float32(len(m.table)) * 1.2))
+	lock.RLock()
+	defer lock.RUnlock()
+	for _, v := range m.table {
+		lock.RUnlock()
+		if v != nil {
+			l = append(l, v)
+		}
+		lock.RLock()
+	}
+	return l
+}
+
 func New(maxSize int) *CacheMap {
 	m := &CacheMap{
 		table:    make(map[interface{}]interface{}),

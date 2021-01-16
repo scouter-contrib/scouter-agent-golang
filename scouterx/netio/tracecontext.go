@@ -9,6 +9,9 @@ import (
 )
 
 type TraceContext struct {
+	Closed       bool
+	LastMethod   string
+
 	Goid         int
 	Parent       *TraceContext
 	Profile      *ProfileCollector

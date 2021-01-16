@@ -45,13 +45,15 @@ func TestSendList(t *testing.T) {
 	perfPack.ObjName = "testObj"
 	perfPack.Time = time.Now().Unix()
 	perfPack.Timetype = timeconstants.REALTIME
-	packList.PushFront(netdata.NewDataOutputX(nil).WritePack(perfPack).Bytes())
+	pack, _ := netdata.NewDataOutputX(nil).WritePack(perfPack)
+	packList.PushFront(pack.Bytes())
 
 	perfPack = netdata.NewPerfCounterPack()
 	perfPack.Put("key2", 456)
 	perfPack.ObjName = "testObj2"
 	perfPack.Time = time.Now().Unix()
-	packList.PushFront(netdata.NewDataOutputX(nil).WritePack(perfPack).Bytes())
+	writePack, _ := netdata.NewDataOutputX(nil).WritePack(perfPack)
+	packList.PushFront(writePack.Bytes())
 
 	udpclient.WriteBufferList(packList)
 }

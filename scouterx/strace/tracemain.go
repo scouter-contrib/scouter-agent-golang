@@ -3,8 +3,11 @@ package strace
 import (
 	"context"
 	"fmt"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/counter"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/tcpclient"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/strace/tctxmanager"
 	"github.com/scouter-project/scouter-go-lib/common/netdata"
 	"github.com/scouter-project/scouter-go-lib/common/util"
@@ -12,12 +15,18 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var ac = conf.GetInstance()
 
+func StartTracingMode() {
+	tctxmanager.RegisterEndStuckServiceForciblyFunc(endStuckServiceForcibly)
+	tcpclient.StartTcp()
+}
+
 func goid() int {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
 	idField := strings.Fields(strings.TrimPrefix(string(buf[:n]), "goroutine "))[0]
@@ -28,7 +37,8 @@ func goid() int {
 	return id
 }
 
-func ForceErrorMark(ctx context.Context, errorMessage string) {
+func MarkAsError(ctx context.Context, errorMessage string) {
+	common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -39,7 +49,8 @@ func ForceErrorMark(ctx context.Context, errorMessage string) {
 	tctx.Error = netio.SendError(errorMessage)
 }
 
-func ForceSetServiceName(ctx context.Context, serviceName string) {
+func SetServiceNameForcibly(ctx context.Context, serviceName string) {
+	common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -52,27 +63,27 @@ func ForceSetServiceName(ctx context.Context, serviceName string) {
 }
 
 func AddStep(ctx context.Context, step netdata.Step) {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
-	tctx.Profile.Push(step)
+	tctx.Profile.Add(step)
 }
 
 func AddMessageStep(ctx context.Context, message string) {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
 
 	step := netdata.NewMessageStep(message, util.MillisToNow(tctx.StartTime))
-	tctx.Profile.Push(step)
+	tctx.Profile.Add(step)
 }
 
 func AddHashedMessageStep(ctx context.Context, message string, value, elapsed int32) {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -81,11 +92,11 @@ func AddHashedMessageStep(ctx context.Context, message string, value, elapsed in
 	step := netdata.NewHashedMessageStep(netio.SendHashedMessage(message), util.MillisToNow(tctx.StartTime))
 	step.Value = value
 	step.Time = elapsed
-	tctx.Profile.Push(step)
+	tctx.Profile.Add(step)
 }
 
 func AddPMessageStep(ctx context.Context, level netdata.PMessageLevel, message string, elapsed int32, params ...string) {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -95,11 +106,11 @@ func AddPMessageStep(ctx context.Context, level netdata.PMessageLevel, message s
 	step.SetMessage(netio.SendHashedMessage(message), params...)
 	step.Elapsed = elapsed
 	step.Level = level
-	tctx.Profile.Push(step)
+	tctx.Profile.Add(step)
 }
 
 func StartHttpService(ctx context.Context, req http.Request) (newCtx context.Context) {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return context.Background()
 	}
@@ -136,12 +147,12 @@ func getRemoteIp(req http.Request) string {
 
 func EndHttpService(ctx context.Context, req http.Request, res http.Response) {
 	//TODO body (of specific service) profile from req.body
-	defer reportScouterPanic()
+	common.ReportScouterPanic()
 	endAnyService(ctx)
 }
 
 func StartService(ctx context.Context, serviceName, remoteIp string) (newCtx context.Context) {
-	defer reportScouterPanic()
+	common.ReportScouterPanic()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -155,27 +166,37 @@ func StartService(ctx context.Context, serviceName, remoteIp string) (newCtx con
 }
 
 func EndService(ctx context.Context) {
-	defer reportScouterPanic()
+	common.ReportScouterPanic()
 	endAnyService(ctx)
 }
 
-//<usage> for chained tracing
-//go func() {
-//	ctxForGoroutine := StartChildGoroutineService(ctx, "myGoroutineService1()")
-//	EndChildGoroutineService(ctxForGoroutine)
-//	myGoroutineService1(ctxForGoroutine)
-//}()
-func StartChildGoroutineService(ctx context.Context, serviceName string) (ctx4Goroutine context.Context) {
-	defer reportScouterPanic()
+//<usage> for chained goroutine tracing
+//
+//GoWithTrace(ctx, "myFuncName()", func(cascadeGoCtx context.Context) {
+//	myFunc(cascadeGoCtx)
+//})
+func GoWithTrace(ctx context.Context, serviceName string, func4Goroutine func(cascadeGoCtx context.Context)) {
+	common.ReportScouterPanic()
+	newCtx, childTctx := startChildGoroutineService(ctx, serviceName)
+	go func() {
+		if childTctx != nil {
+			childTctx.StartTime = time.Now()
+		}
+		defer endChildGoroutineService(newCtx)
+		func4Goroutine(newCtx)
+	}()
+}
+
+func startChildGoroutineService(ctx context.Context, serviceName string) (ctx4Goroutine context.Context, childTctx *netio.TraceContext) {
 	if ctx == nil {
-		return ctx
+		return ctx, nil
 	}
 	parentTctx := tctxmanager.GetTraceContext(ctx)
 	if parentTctx == nil {
-		return ctx
+		return ctx, nil
 	}
 
-	ctx4Goroutine, childTctx := startService(ctx, serviceName, parentTctx.RemoteIp)
+	ctx4Goroutine, childTctx = startService(ctx, serviceName, parentTctx.RemoteIp)
 	childTctx.XType = netdata.XTYPE_BACK_THREAD2
 	childTctx.Caller = parentTctx.Txid
 	childTctx.Gxid = parentTctx.Gxid
@@ -190,11 +211,11 @@ func StartChildGoroutineService(ctx context.Context, serviceName string) (ctx4Go
 	asyncStep.Hash = netio.SendApicall(serviceName)
 	parentTctx.Profile.Add(asyncStep)
 
-	return ctx4Goroutine
+	return ctx4Goroutine, childTctx
 }
 
-func EndChildGoroutineService(ctx context.Context) {
-	defer reportScouterPanic()
+func endChildGoroutineService(ctx context.Context) {
+	common.ReportScouterPanic()
 	endAnyService(ctx)
 }
 
@@ -216,9 +237,32 @@ func endAnyService(ctx context.Context) {
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
-	if tctx == nil {
+	if tctx == nil || tctx.Closed {
 		return
 	}
+	endAnyServiceOfTraceContext(tctx)
+}
+
+func endStuckServiceForcibly(tctx *netio.TraceContext) {
+	if ac.StuckServiceRemoveEnabled {
+		step := netdata.NewPMessageStep(util.MillisToNow(tctx.StartTime))
+		step.SetMessage(netio.SendHashedMessage("Service currently may running, not finished!"))
+		step.Level = netdata.PMSG_ERROR
+		tctx.Profile.Add(step)
+
+		if tctx.Error == 0 {
+			tctx.Error = netio.SendError("This stuck service currently may running, not finished!")
+		}
+		endAnyServiceOfTraceContext(tctx)
+	}
+}
+
+func endAnyServiceOfTraceContext(tctx *netio.TraceContext) {
+	if tctx.Closed {
+		return
+	}
+	tctx.Closed = true
+
 	tctx.ServiceHash = netio.SendServiceName(tctx.ServiceName)
 	tctxmanager.End(tctx)
 
@@ -229,7 +273,7 @@ func endAnyService(ctx context.Context) {
 	writeProfile := discardType == netdata.XLOG_DISCARD_NONE //TODO consequence sampling
 	tctx.Profile.Close(writeProfile)
 
-	//TODO metering
+	counter.GetServiceMeter().Add(int(xlog.Elapsed), xlog.Error != 0)
 	//TODO meteringInteraction
 
 	if (xlog.DiscardType != netdata.XLOG_DISCARD_ALL && xlog.DiscardType != netdata.XLOG_DISCARD_ALL_FORCE) ||
@@ -262,7 +306,7 @@ func StartMethod(ctx context.Context) *netdata.MethodStep {
 }
 
 func StartMethodWithParam(ctx context.Context, params []interface{}) *netdata.MethodStep {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 
 	if ctx == nil {
 		return nil
@@ -278,6 +322,7 @@ func StartMethodWithParam(ctx context.Context, params []interface{}) *netdata.Me
 	shortName := split[len(split)-1] + "()"
 
 	addMessageStepIfParamExist(tctx, params)
+	tctx.LastMethod = funcName
 
 	step := netdata.NewMethodStep()
 	step.Hash = netio.SendMethod(shortName)
@@ -298,7 +343,7 @@ func addMessageStepIfParamExist(tctx *netio.TraceContext, params []interface{}) 
 }
 
 func EndMethod(ctx context.Context, step *netdata.MethodStep) {
-	defer reportScouterPanic()
+	defer common.ReportScouterPanic()
 
 	if ctx == nil || step == nil {
 		return
@@ -337,8 +382,3 @@ func profileHttpHeaders(r http.Request, tctx *netio.TraceContext) {
 	}
 }
 
-func reportScouterPanic() {
-	if r := recover(); r != nil {
-		fmt.Printf("[scouter][panic]%+v\n", r)
-	}
-}
