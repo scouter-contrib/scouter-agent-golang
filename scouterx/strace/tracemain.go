@@ -479,4 +479,3 @@ func profileHttpHeaders(r http.Request, tctx *netio.TraceContext) {
 		tctx.Profile.Add(netdata.NewMessageStep(fmt.Sprintf("query: %s", r.URL.RawQuery), startTime))
 	}
 }
-

@@ -17,6 +17,7 @@ var ac = conf.GetInstance()
 var txidMap = cachemap.New(10000)
 
 var fEndStuckServiceForcibly func(tctx *netio.TraceContext)
+var noopTctx = netio.NewTraceContext()
 
 func RegisterEndStuckServiceForciblyFunc(f func(tctx *netio.TraceContext)) {
 	fEndStuckServiceForcibly = f
@@ -25,6 +26,13 @@ func RegisterEndStuckServiceForciblyFunc(f func(tctx *netio.TraceContext)) {
 func Size() int {
 	//TODO Size
 	return 0
+}
+
+func GetTraceContextFallbackNoop(ctx context.Context) *netio.TraceContext {
+	tctx := GetTraceContext(ctx)
+	if tctx == nil {
+		return noopTctx
+	}
 }
 
 func GetTraceContext(ctx context.Context) *netio.TraceContext {
