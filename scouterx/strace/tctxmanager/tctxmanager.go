@@ -33,6 +33,7 @@ func GetTraceContextFallbackNoop(ctx context.Context) *netio.TraceContext {
 	if tctx == nil {
 		return noopTctx
 	}
+	return tctx
 }
 
 func GetTraceContext(ctx context.Context) *netio.TraceContext {
