@@ -71,6 +71,21 @@ func MarkAsError(ctx context.Context, errorMessage string) {
 	if tctx == nil {
 		return
 	}
+	if tctx.Error == 0 {
+		tctx.Error = netio.SendError(errorMessage)
+	}
+	AddPMessageStep(ctx, netdata.PMSG_ERROR, errorMessage, 0)
+}
+
+func MarkAsErrorForcibly(ctx context.Context, errorMessage string) {
+	common.ReportScouterPanic()
+	if ctx == nil {
+		return
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return
+	}
 	tctx.Error = netio.SendError(errorMessage)
 }
 
@@ -330,7 +345,7 @@ func StartMethod(ctx context.Context) *netdata.MethodStep {
 	return StartMethodWithParam(ctx, nil)
 }
 
-func StartMethodWithParam(ctx context.Context, params []interface{}) *netdata.MethodStep {
+func StartMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
 	defer common.ReportScouterPanic()
 
 	if ctx == nil {
