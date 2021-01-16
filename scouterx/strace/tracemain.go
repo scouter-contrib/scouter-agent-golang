@@ -223,12 +223,8 @@ func StartNewInheritanceService(ctx context.Context, parentTctx *netio.TraceCont
 
 func inheritTctx(newTctx *netio.TraceContext, parentTctx *netio.TraceContext) *netio.TraceContext {
 	newTctx.Inherit = true
-	newTctx.InheritStartTime = newTctx.StartTime
-	newTctx.StartTime = parentTctx.StartTime
+	newTctx.Gxid = parentTctx.Gxid
 	newTctx.XType = parentTctx.XType
-	newTctx.Profile = parentTctx.Profile
-	newTctx.ProfileCount = parentTctx.ProfileCount
-	newTctx.ProfileSize = parentTctx.ProfileSize
 	newTctx.Profile.Add(netdata.NewMessageStep("scouter inheritance step", 0))
 	newTctx.IsStream = parentTctx.IsStream
 
@@ -320,6 +316,7 @@ func startService(ctx context.Context, serviceName, remoteAddr string) (context.
 	newCtx, tctx := tctxmanager.NewTraceContext(ctx)
 	tctxmanager.Start(tctx)
 
+	tctx.Gxid = tctx.Txid
 	tctx.Goid = goid()
 	tctx.Profile.Add(netdata.NewMessageStep(fmt.Sprintf("goroutine:%d", tctx.Goid), 0))
 
@@ -364,9 +361,6 @@ func endAnyServiceOfTraceContext(tctx *netio.TraceContext) {
 	tctxmanager.End(tctx)
 
 	elapsed := util.MillisToNow(tctx.StartTime)
-	if tctx.Inherit {
-		elapsed = util.MillisToNow(tctx.InheritStartTime)
-	}
 	discardType := findXLogDiscard(tctx, elapsed)
 	xlog := tctx.ToXlog(discardType, elapsed)
 
