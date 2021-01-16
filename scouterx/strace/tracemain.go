@@ -210,6 +210,63 @@ func EndService(ctx context.Context) {
 	endAnyService(ctx)
 }
 
+func StartNewInheritanceService(ctx context.Context, parentTctx *netio.TraceContext) (newCtx context.Context, newTctx *netio.TraceContext) {
+	common.ReportScouterPanic()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	newCtx, newTctx = startService(ctx, parentTctx.ServiceName, parentTctx.RemoteIp)
+	newTctx = inheritTctx(newTctx, parentTctx)
+
+	return newCtx, newTctx
+}
+
+func inheritTctx(newTctx *netio.TraceContext, parentTctx *netio.TraceContext) *netio.TraceContext {
+	newTctx.Inherit = true
+	newTctx.InheritStartTime = newTctx.StartTime
+	newTctx.StartTime = parentTctx.StartTime
+	newTctx.XType = parentTctx.XType
+	newTctx.Profile = parentTctx.Profile
+	newTctx.ProfileCount = parentTctx.ProfileCount
+	newTctx.ProfileSize = parentTctx.ProfileSize
+	newTctx.Profile.Add(netdata.NewMessageStep("scouter inheritance step", 0))
+	newTctx.IsStream = parentTctx.IsStream
+
+	newTctx.Error = parentTctx.Error
+	newTctx.HttpMethod = parentTctx.HttpMethod
+	newTctx.HttpQuery = parentTctx.HttpQuery
+	newTctx.HttpContentType = parentTctx.HttpContentType
+
+	newTctx.SqlCount = parentTctx.SqlCount
+	newTctx.SqlTime = parentTctx.SqlTime
+	newTctx.Sqltext = parentTctx.Sqltext
+
+	newTctx.ApicallName = parentTctx.ApicallName
+	newTctx.ApicallCount = parentTctx.ApicallCount
+	newTctx.ApicallTime = parentTctx.ApicallTime
+	newTctx.ApicallTarget = parentTctx.ApicallTarget
+
+	newTctx.Userid = parentTctx.Userid
+	newTctx.UserAgent = parentTctx.UserAgent
+	newTctx.UserAgentString = parentTctx.UserAgentString
+	newTctx.Referer = parentTctx.Referer
+
+	newTctx.IsChildTx = true
+	newTctx.Caller = parentTctx.Txid
+	newTctx.CallerObjHash = ac.ObjHash
+
+	newTctx.Login = parentTctx.Login
+	newTctx.Desc = parentTctx.Desc
+
+	newTctx.Text1 = parentTctx.Text1
+	newTctx.Text2 = parentTctx.Text2
+	newTctx.Text3 = parentTctx.Text3
+	newTctx.Text4 = parentTctx.Text4
+	newTctx.Text5 = parentTctx.Text5
+
+	return newTctx
+}
+
 //<usage> for chained goroutine tracing
 //
 //GoWithTrace(ctx, "myFuncName()", func(cascadeGoCtx context.Context) {
@@ -307,6 +364,9 @@ func endAnyServiceOfTraceContext(tctx *netio.TraceContext) {
 	tctxmanager.End(tctx)
 
 	elapsed := util.MillisToNow(tctx.StartTime)
+	if tctx.Inherit {
+		elapsed = util.MillisToNow(tctx.InheritStartTime)
+	}
 	discardType := findXLogDiscard(tctx, elapsed)
 	xlog := tctx.ToXlog(discardType, elapsed)
 

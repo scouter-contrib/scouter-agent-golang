@@ -13,6 +13,9 @@ type TraceContext struct {
 	LastMethod   string
 	IsStream     bool
 
+	Inherit bool
+	InheritStartTime time.Time
+
 	Goid         int
 	Parent       *TraceContext
 	Profile      *ProfileCollector
@@ -57,7 +60,7 @@ type TraceContext struct {
 	IsChildTx     bool
 	Caller        int64
 	Callee        int64
-	CallerObjHash int64
+	CallerObjHash int32
 
 	Login string
 	Desc  string
