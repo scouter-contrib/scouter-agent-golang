@@ -37,6 +37,31 @@ func goid() int {
 	return id
 }
 
+func IsStream(ctx context.Context) bool {
+	common.ReportScouterPanic()
+	if ctx == nil {
+		return false
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return false
+	}
+	return tctx.IsStream
+}
+
+func SetAsStream(ctx context.Context) bool {
+	common.ReportScouterPanic()
+	if ctx == nil {
+		return false
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return false
+	}
+	tctx.IsStream = true
+	return true
+}
+
 func MarkAsError(ctx context.Context, errorMessage string) {
 	common.ReportScouterPanic()
 	if ctx == nil {

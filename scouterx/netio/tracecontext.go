@@ -11,6 +11,7 @@ import (
 type TraceContext struct {
 	Closed       bool
 	LastMethod   string
+	IsStream     bool
 
 	Goid         int
 	Parent       *TraceContext
