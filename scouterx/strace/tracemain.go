@@ -413,7 +413,7 @@ func StartMethod(ctx context.Context) *netdata.MethodStep {
 
 func StartMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
 	defer common.ReportScouterPanic()
-	return startMethodWithParam(ctx, params)
+	return startMethodWithParam(ctx, params...)
 }
 
 func StartCustomMethod(ctx context.Context, methodName string) *netdata.MethodStep {
@@ -430,7 +430,7 @@ func StartCustomMethodWithParam(ctx context.Context, methodName string, params .
 		return nil
 	}
 
-	return startMethodWithParam0(tctx, methodName, methodName, params)
+	return startMethodWithParam0(tctx, methodName, methodName, params...)
 }
 
 func startMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
