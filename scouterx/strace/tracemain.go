@@ -149,7 +149,7 @@ func AddPMessageStep(ctx context.Context, level netdata.PMessageLevel, message s
 	tctx.Profile.Add(step)
 }
 
-func StartHttpService(ctx context.Context, req http.Request) (newCtx context.Context) {
+func StartHttpService(ctx context.Context, req *http.Request) (newCtx context.Context) {
 	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return context.Background()
@@ -174,7 +174,7 @@ func StartHttpService(ctx context.Context, req http.Request) (newCtx context.Con
 	return newCtx
 }
 
-func getRemoteIp(req http.Request) string {
+func getRemoteIp(req *http.Request) string {
 	ip := req.RemoteAddr
 	if ac.TraceHttpClientIpHeaderKey != "" {
 		headerIp := req.Header.Get(ac.TraceHttpClientIpHeaderKey)
@@ -185,9 +185,20 @@ func getRemoteIp(req http.Request) string {
 	return strings.Split(ip, ":")[0]
 }
 
-func EndHttpService(ctx context.Context, req http.Request, res http.Response) {
-	//TODO body (of specific service) profile from req.body
+func EndHttpService(ctx context.Context, req *http.Request, res *http.Response) {
 	common.ReportScouterPanic()
+	//TODO body (of specific service) profile from req.body
+
+	if res != nil {
+		if ctx == nil {
+			return
+		}
+		tctx := tctxmanager.GetTraceContext(ctx)
+		if tctx == nil || tctx.Closed {
+			return
+		}
+		tctx.Status = int32(res.StatusCode)
+	}
 	endAnyService(ctx)
 }
 
@@ -454,7 +465,7 @@ func EndMethod(ctx context.Context, step *netdata.MethodStep) {
 	tctx.Profile.Pop(step)
 }
 
-func profileHttpHeaders(r http.Request, tctx *netio.TraceContext) {
+func profileHttpHeaders(r *http.Request, tctx *netio.TraceContext) {
 	startTime := util.MillisToNow(tctx.StartTime)
 	if ac.ProfileHttpHeaderEnabled {
 		notAll := len(ac.ProfileHttpHeaderKeys) > 0

@@ -9,11 +9,11 @@ import (
 )
 
 type TraceContext struct {
-	Closed       bool
-	LastMethod   string
-	IsStream     bool
+	Closed     bool
+	LastMethod string
+	IsStream   bool
 
-	Inherit bool
+	Inherit          bool
 	InheritStartTime time.Time
 
 	Goid         int
@@ -42,6 +42,7 @@ type TraceContext struct {
 	SqlTime  int32
 	Sqltext  string
 
+	Status        int32
 	ApicallName   string
 	ApicallCount  int32
 	ApicallTime   int32
@@ -99,6 +100,8 @@ func (tctx (TraceContext)) ToXlog(discardType netdata.XlogDiscardType, elapsed i
 	xlog.HasDump = 0
 	xlog.Error = tctx.Error
 
+	xlog.Status = tctx.Status
+	
 	xlog.DiscardType = discardType
 	xlog.ProfileSize = int32(tctx.ProfileSize)
 	xlog.ProfileCount = int32(tctx.ProfileCount)
