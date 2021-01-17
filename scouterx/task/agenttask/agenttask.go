@@ -26,7 +26,7 @@ func SendObjPack() {
 	objPack := netdata.NewObjectPack()
 	objPack.ObjName = objName
 	objPack.ObjHash = objHash
-	objPack.ObjType = "go"
+	objPack.ObjType = ac.ObjType
 	objPack.Version = "0.0.0"
 	netio.SendPackDirect(objPack)
 }

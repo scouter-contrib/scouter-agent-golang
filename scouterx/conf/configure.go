@@ -25,6 +25,7 @@ type Configure struct {
 	SendQueueSize int
 	ObjHash int32
 	ObjName string
+	ObjType string
 	ObjNameSimple string
 	NetCollectorIP string
 	NetCollectorUDPPort int
@@ -162,7 +163,7 @@ func (conf *Configure) IsTrace() bool {
 	return conf._trace
 }
 
-func (conf *Configure) resetObjName(props *properties.Properties) {
+func (conf *Configure) resetObjNameAndType(props *properties.Properties) {
 	defaultName := "go1"
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -175,6 +176,7 @@ func (conf *Configure) resetObjName(props *properties.Properties) {
 	conf.ObjName = hostname + "/" + newObjSimpleName
 	conf.ObjHash = util.HashString(conf.ObjName)
 
+	conf.ObjType = props.GetString("obj_type", "golang")
 	if oldObjName != conf.ObjName {
 		objChangeNotify()
 	}
@@ -234,7 +236,7 @@ func (conf *Configure) Refresh() {
 
 func (conf *Configure) addToConf(props *properties.Properties) {
 
-	conf.resetObjName(props)
+	conf.resetObjNameAndType(props)
 	conf._trace = props.GetBool("_trace", false)
 
 	conf.SendQueueSize = props.GetInt("send_queue_size", 3000)
