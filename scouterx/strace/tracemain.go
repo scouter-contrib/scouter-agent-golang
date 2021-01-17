@@ -447,7 +447,7 @@ func startMethodWithParam(ctx context.Context, params ...interface{}) *netdata.M
 	split := strings.Split(funcName, "/")
 	methodName := split[len(split)-1] + "()"
 
-	return startMethodWithParam0(tctx, funcName, methodName, params)
+	return startMethodWithParam0(tctx, funcName, methodName, params...)
 }
 
 func startMethodWithParam0(tctx *netio.TraceContext, funcName string, methodName string, params ...interface{}) *netdata.MethodStep {
