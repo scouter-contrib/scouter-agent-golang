@@ -407,16 +407,33 @@ func findXLogDiscard(tctx *netio.TraceContext, elapsed int32) netdata.XlogDiscar
 }
 
 func StartMethod(ctx context.Context) *netdata.MethodStep {
-	return startMethodWithParam(ctx)
+	defer common.ReportScouterPanic()
+	return startMethodWithParam(ctx) //do not call StartMethodWithParam (because of method name finding depth)
 }
 
 func StartMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
+	defer common.ReportScouterPanic()
 	return startMethodWithParam(ctx, params)
 }
 
-func startMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
-	defer common.ReportScouterPanic()
+func StartCustomMethod(ctx context.Context, methodName string) *netdata.MethodStep {
+	return StartCustomMethodWithParam(ctx, methodName)
+}
 
+func StartCustomMethodWithParam(ctx context.Context, methodName string, params ...interface{}) *netdata.MethodStep {
+	defer common.ReportScouterPanic()
+	if ctx == nil {
+		return nil
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return nil
+	}
+
+	return startMethodWithParam0(tctx, methodName, methodName, params)
+}
+
+func startMethodWithParam(ctx context.Context, params ...interface{}) *netdata.MethodStep {
 	if ctx == nil {
 		return nil
 	}
@@ -428,13 +445,17 @@ func startMethodWithParam(ctx context.Context, params ...interface{}) *netdata.M
 	pc, _, _, _ := runtime.Caller(2)
 	funcName := fmt.Sprintf("%s", runtime.FuncForPC(pc).Name())
 	split := strings.Split(funcName, "/")
-	shortName := split[len(split)-1] + "()"
+	methodName := split[len(split)-1] + "()"
 
+	return startMethodWithParam0(tctx, funcName, methodName, params)
+}
+
+func startMethodWithParam0(tctx *netio.TraceContext, funcName string, methodName string, params ...interface{}) *netdata.MethodStep {
 	addMessageStepIfParamExist(tctx, params)
 	tctx.LastMethod = funcName
 
 	step := netdata.NewMethodStep()
-	step.Hash = netio.SendMethod(shortName)
+	step.Hash = netio.SendMethod(methodName)
 	step.StartTime = util.MillisToNow(tctx.StartTime)
 	tctx.Profile.Push(step)
 	return step
