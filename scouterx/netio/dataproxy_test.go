@@ -3,7 +3,6 @@ package netio
 import (
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/udpsender"
-	util2 "github.com/scouter-contrib/scouter-agent-golang/scouterx/util"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	util "github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util/keygen"
@@ -23,7 +22,7 @@ func TestSendXlog(t *testing.T) {
 	xlog.Service = SendServiceName(service)
 	xlog.Elapsed = 100
 	xlog.DiscardType = netdata.XLOG_DISCARD_NONE
-	xlog.Ipaddr = util2.IpToBytes("127.0.0.1")
+	xlog.Ipaddr = util.IpToBytes("127.0.0.1")
 
 	SendXlog(xlog)
 }
@@ -51,7 +50,7 @@ func TestSendProfileAndXlog(t *testing.T) {
 	xlog.Service = context.ServiceHash
 	xlog.Elapsed = 100
 	xlog.DiscardType = netdata.XLOG_DISCARD_NONE
-	xlog.Ipaddr = util2.IpToBytes("127.0.0.1")
+	xlog.Ipaddr = util.IpToBytes("127.0.0.1")
 	SendXlog(xlog)
 }
 

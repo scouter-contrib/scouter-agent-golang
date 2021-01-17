@@ -116,7 +116,7 @@ func (tctx (TraceContext)) ToXlog(discardType netdata.XlogDiscardType, elapsed i
 	}
 	xlog.Text1 = tctx.Text1
 	xlog.Text2 = tctx.Text2
-	xlog.Text4 = tctx.Text3
+	xlog.Text3 = tctx.Text3
 	xlog.Text4 = tctx.Text4
 	xlog.Text5 = tctx.Text5
 
