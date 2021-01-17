@@ -466,6 +466,9 @@ func addMessageStepIfParamExist(tctx *netio.TraceContext, params []interface{}) 
 		return
 	}
 	for _, param := range params {
+		if param == nil {
+			continue
+		}
 		step := netdata.NewMessageStep(fmt.Sprintf("param: %v", param), util.MillisToNow(tctx.StartTime))
 		step.StartTime = util.MillisToNow(tctx.StartTime)
 		tctx.Profile.Add(step)
