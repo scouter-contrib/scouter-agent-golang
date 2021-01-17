@@ -140,10 +140,18 @@ func (conf *Configure) run() {
 }
 
 func getConfFilePath() string {
-	path := util.GetScouterPath()
-	confPath := filepath.Join(path, "conf")
-	util.MakeDir(confPath)
-	return filepath.Join(path, "conf", "scouter.conf")
+	scouterConfFile := os.Getenv("SCOUTER_CONFIG")
+	if scouterConfFile == "" {
+		scouterConfFile = os.Getenv("scouter.config")
+	}
+	if scouterConfFile == "" {
+		path := util.GetScouterPath()
+		confPath := filepath.Join(path, "conf")
+		util.MakeDir(confPath)
+		scouterConfFile = filepath.Join(path, "conf", "scouter.conf")
+	}
+
+	return scouterConfFile
 }
 
 func (conf *Configure) SetTrace(mode bool) {
