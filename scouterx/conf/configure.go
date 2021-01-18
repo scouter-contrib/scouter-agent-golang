@@ -174,7 +174,7 @@ func (conf *Configure) resetObjNameAndType(props *properties.Properties) {
 	oldObjName := conf.ObjName
 	newObjSimpleName := props.GetString("obj_name", defaultName)
 	conf.ObjNameSimple = newObjSimpleName
-	conf.ObjName = hostname + "/" + newObjSimpleName
+	conf.ObjName = "/" + hostname + "/" + newObjSimpleName
 	conf.ObjHash = util.HashString(conf.ObjName)
 
 	conf.ObjType = props.GetString("obj_type", "golang")
