@@ -21,6 +21,7 @@ type Configure struct {
 	lastModified time.Time
 
 	_trace bool
+	TraceObjSend bool
 
 	SendQueueSize int
 	ObjHash int32
@@ -238,6 +239,7 @@ func (conf *Configure) addToConf(props *properties.Properties) {
 
 	conf.resetObjNameAndType(props)
 	conf._trace = props.GetBool("_trace", false)
+	conf.TraceObjSend = props.GetBool("trace_obj_send", false)
 
 	conf.SendQueueSize = props.GetInt("send_queue_size", 3000)
 

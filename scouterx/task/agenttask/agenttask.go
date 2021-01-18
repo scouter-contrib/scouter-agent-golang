@@ -1,6 +1,7 @@
 package agenttask
 
 import (
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/logger"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
@@ -28,5 +29,9 @@ func SendObjPack() {
 	objPack.ObjHash = objHash
 	objPack.ObjType = ac.ObjType
 	objPack.Version = "0.0.0"
+
+	if ac.TraceObjSend {
+		logger.Info.Printf("[scouter] SendObjPack: %s, %d, %s", objName, objHash, ac.ObjType)
+	}
 	netio.SendPackDirect(objPack)
 }

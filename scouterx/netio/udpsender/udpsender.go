@@ -15,6 +15,11 @@ import (
 var once sync.Once
 var ac = conf.GetInstance()
 
+var udpObjHash int32
+var serverAddr string
+var udpServerPort int
+var udpMaxBytes int
+
 type UDPSender struct {
 	udpChannel chan []byte
 	running    bool
@@ -25,15 +30,40 @@ var udpSender *UDPSender
 
 func GetInstance() *UDPSender {
 	once.Do(func() {
+		serverAddr = ac.NetCollectorIP
+		udpServerPort = ac.NetCollectorUDPPort
+		udpMaxBytes = ac.UDPMaxBytes
+
 		udpSender = new(UDPSender)
 		udpSender.udpChannel = channelfactory.GetUDPChannel()
 		udpSender.running = true
-		udpSender.udpClient = udpclient.New(ac.NetCollectorIP, ac.NetCollectorUDPPort)
-		udpSender.udpClient.SetUDPMaxBytes(ac.UDPMaxBytes)
-		udpSender.running = true
+		udpSender.udpClient = udpclient.New(serverAddr, udpServerPort)
+		udpSender.udpClient.SetUDPMaxBytes(udpMaxBytes)
 		go udpSender.run()
+		go reloadUdpSender()
 	})
 	return udpSender
+}
+
+func reloadUdpSender() {
+	for {
+		time.Sleep(1000)
+		if serverAddr != ac.NetCollectorIP || udpServerPort != ac.NetCollectorUDPPort || udpMaxBytes != ac.UDPMaxBytes {
+			serverAddr = ac.NetCollectorIP
+			udpServerPort = ac.NetCollectorUDPPort
+			udpMaxBytes = ac.UDPMaxBytes
+
+			udpSender.running = true
+			prevClient := udpSender.udpClient
+			udpClient := udpclient.New(serverAddr, udpServerPort)
+			udpClient.SetUDPMaxBytes(udpMaxBytes)
+			udpSender.udpClient = udpClient
+
+			if prevClient.Conn != nil {
+				prevClient.Conn.Close()
+			}
+		}
+	}
 }
 
 func (udpSender *UDPSender) AddPack(pack netdata.Pack) {
@@ -55,6 +85,11 @@ func (udpSender *UDPSender) AddBuffer(buffer []byte) {
 }
 
 func (udpSender *UDPSender) SendPackDirect(pack netdata.Pack) {
+	if ac.TraceObjSend {
+		if p, ok := pack.(*netdata.ObjectPack); ok {
+			logger.Info.Printf("[scouter] SendPackDirect[ObjPack], to:%s, pack:%s", udpSender.udpClient.Conn.RemoteAddr(), p.ToString())
+		}
+	}
 	writePack, _ := netdata.NewDataOutputX(nil).WritePack(pack)
 	bytes := writePack.Bytes()
 	go udpSender.udpClient.WriteBuffer(bytes)

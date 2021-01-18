@@ -47,7 +47,7 @@ func (c *TCPClient) Prepare() bool {
 	logger.Info.Printf("[scouter]tcp prepare %s, %d", c.host, c.port)
 	conn0, err := net.DialTimeout("tcp", c.host+":"+strconv.Itoa(c.port), time.Duration(c.connectionTimeout)*time.Millisecond)
 	if err != nil {
-		logger.Error.Printf("[scouter][err]%v", err)
+		logger.Error.Printf("[scouter][err]%v\n", err)
 		c.conn = nil
 		return false
 	}

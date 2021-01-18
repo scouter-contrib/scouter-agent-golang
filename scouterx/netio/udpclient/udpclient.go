@@ -41,21 +41,22 @@ func (udpClient *UDPClient) open() error {
 	s, err := net.ResolveUDPAddr("udp", address)
 
 	if err != nil {
-		logger.Error.Printf("can't initialize udp client. %s\n", err.Error())
+		logger.Error.Printf("[scouter] can't resolve udp client. %s\n", err.Error())
 		return err
 	}
 	udpClient.Conn, err = net.DialUDP("udp", nil, s)
 	if err != nil {
-		logger.Error.Printf("can't initialize udp client. %s\n", err.Error())
+		logger.Error.Printf("[scouter] can't dialup udp client. %s\n", err.Error())
 		return err
 	}
 	return nil
 }
 
 func (udpClient *UDPClient) close() {
-	udpClient.Conn.Close()
+	if udpClient.Conn != nil {
+		udpClient.Conn.Close()
+	}
 }
-
 
 func (udpClient *UDPClient) writeMTU(data []byte, packetSize int) bool {
 	if udpClient.Conn == nil {

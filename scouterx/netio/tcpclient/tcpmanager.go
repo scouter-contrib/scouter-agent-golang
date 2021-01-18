@@ -25,7 +25,7 @@ func startTcp() {
 			if client.Prepare() {
 				err := client.Process()
 				if err != nil {
-					logger.Error.Printf("[scouter][err]connection to collector: %v", err)
+					logger.Error.Printf("[scouter][err]connection to collector: %v\n", err)
 					time.Sleep(time.Duration(min(sleep, maxSleep)) * time.Millisecond)
 					sleep = sleep * 2
 					if sleep > maxSleep {
