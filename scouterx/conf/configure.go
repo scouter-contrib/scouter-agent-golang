@@ -241,7 +241,7 @@ func (conf *Configure) addToConf(props *properties.Properties) {
 
 	conf.SendQueueSize = props.GetInt("send_queue_size", 3000)
 
-	conf.NetCollectorIP = props.GetString("net_collector_ip", "127.0.01")
+	conf.NetCollectorIP = props.GetString("net_collector_ip", "127.0.0.1")
 	conf.NetCollectorUDPPort = props.GetInt("net_collector_udp_port", 6100)
 	conf.NetCollectorTCPPort = props.GetInt("net_collector_tcp_port", 6100)
 	conf.NetCollectorTcpSoTimeoutMs = props.GetInt("net_collector_tcp_so_timeout_ms", 60000)
