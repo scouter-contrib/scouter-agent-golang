@@ -222,6 +222,7 @@ func EndService(ctx context.Context) {
 }
 
 func StartNewInheritanceService(ctx context.Context, parentTctx *netio.TraceContext) (newCtx context.Context, newTctx *netio.TraceContext) {
+	//TODO ctx를 전달받지 않아야 될 것 같긴한데...
 	common.ReportScouterPanic()
 	if ctx == nil {
 		ctx = context.Background()

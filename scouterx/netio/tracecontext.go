@@ -10,6 +10,7 @@ import (
 
 type TraceContext struct {
 	Closed     bool
+	Noop       bool
 	LastMethod string
 	IsStream   bool
 
@@ -84,6 +85,16 @@ func NewTraceContext() *TraceContext {
 	return context
 }
 
+func NewNoopTraceContext() *TraceContext {
+	context := new(TraceContext)
+	context.Txid = -1
+	context.Noop = true
+	context.Text5 = "NoopTctx"
+	context.StartTime = time.Now()
+	context.Profile = NewProfileCollector(context)
+	return context
+}
+
 func (tctx (TraceContext)) ToXlog(discardType netdata.XlogDiscardType, elapsed int32) *netdata.XlogPack {
 	xlog := netdata.NewXlogPack()
 	xlog.Elapsed = elapsed
@@ -101,7 +112,7 @@ func (tctx (TraceContext)) ToXlog(discardType netdata.XlogDiscardType, elapsed i
 	xlog.Error = tctx.Error
 
 	xlog.Status = tctx.Status
-	
+
 	xlog.DiscardType = discardType
 	xlog.ProfileSize = int32(tctx.ProfileSize)
 	xlog.ProfileCount = int32(tctx.ProfileCount)
