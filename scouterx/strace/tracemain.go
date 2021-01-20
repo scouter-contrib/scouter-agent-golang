@@ -538,7 +538,7 @@ func StartApiCall(ctx context.Context, apiCallName string, address string) *netd
 	return step
 }
 
-func EndApiCall(ctx context.Context, step *netdata.MethodStep) {
+func EndApiCall(ctx context.Context, step *netdata.ApiCallStep, err error) {
 	defer common.ReportScouterPanic()
 
 	if ctx == nil || step == nil {
@@ -549,6 +549,12 @@ func EndApiCall(ctx context.Context, step *netdata.MethodStep) {
 		return
 	}
 	step.Elapsed = util.MillisToNow(tctx.StartTime) - step.StartTime
+	if err != nil {
+		step.Error = netio.SendError(err.Error())
+		if tctx.Error == 0 {
+			tctx.Error = step.Error
+		}
+	}
 	tctx.Profile.Pop(step)
 }
 
