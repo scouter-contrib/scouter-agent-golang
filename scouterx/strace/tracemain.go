@@ -515,3 +515,37 @@ func profileHttpHeaders(r *http.Request, tctx *netio.TraceContext) {
 		tctx.Profile.Add(netdata.NewMessageStep(fmt.Sprintf("query: %s", r.URL.RawQuery), startTime))
 	}
 }
+
+func StartApiCall(ctx context.Context, apiCallName string, address string) *netdata.ApiCallStep {
+	defer common.ReportScouterPanic()
+	if ctx == nil {
+		return nil
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return nil
+	}
+
+	step := netdata.NewApiCallStep()
+	step.Hash = netio.SendApicall(apiCallName)
+	step.StartTime = util.MillisToNow(tctx.StartTime)
+	step.Address = address
+	tctx.Profile.Push(step)
+
+	return step
+}
+
+func EndApiCall(ctx context.Context, step *netdata.MethodStep) {
+	defer common.ReportScouterPanic()
+
+	if ctx == nil || step == nil {
+		return
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return
+	}
+	step.Elapsed = util.MillisToNow(tctx.StartTime) - step.StartTime
+	tctx.Profile.Pop(step)
+}
+
