@@ -549,6 +549,8 @@ func EndApiCall(ctx context.Context, step *netdata.ApiCallStep, err error) {
 		return
 	}
 	step.Elapsed = util.MillisToNow(tctx.StartTime) - step.StartTime
+	tctx.ApicallCount++
+	tctx.ApicallTime += step.Elapsed
 	if err != nil {
 		step.Error = netio.SendError(err.Error())
 		if tctx.Error == 0 {

@@ -16,7 +16,7 @@ func NewApiCallStep() *ApiCallStep {
 	return step
 }
 
-func (s *ApiCallStep) ApiCallStep() byte {
+func (s *ApiCallStep) GetStepType() byte {
 	return APICALL
 }
 
