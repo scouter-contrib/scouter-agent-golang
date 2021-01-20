@@ -529,6 +529,9 @@ func StartApiCall(ctx context.Context, apiCallName string, address string) *netd
 	step := netdata.NewApiCallStep()
 	step.Hash = netio.SendApicall(apiCallName)
 	step.StartTime = util.MillisToNow(tctx.StartTime)
+	if address != "" {
+		step.Opt = 1
+	}
 	step.Address = address
 	tctx.Profile.Push(step)
 
