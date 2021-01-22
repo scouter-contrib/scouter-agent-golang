@@ -108,6 +108,9 @@ func AddStep(ctx context.Context, step netdata.Step) {
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return
+	}
 	tctx.Profile.Add(step)
 }
 
@@ -117,6 +120,9 @@ func AddMessageStep(ctx context.Context, message string) {
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return
+	}
 
 	step := netdata.NewMessageStep(message, util.MillisToNow(tctx.StartTime))
 	tctx.Profile.Add(step)
@@ -128,6 +134,9 @@ func AddHashedMessageStep(ctx context.Context, message string, value, elapsed in
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return
+	}
 
 	step := netdata.NewHashedMessageStep(netio.SendHashedMessage(message), util.MillisToNow(tctx.StartTime))
 	step.Value = value
@@ -141,6 +150,9 @@ func AddPMessageStep(ctx context.Context, level netdata.PMessageLevel, message s
 		return
 	}
 	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return
+	}
 
 	step := netdata.NewPMessageStep(util.MillisToNow(tctx.StartTime))
 	step.SetMessage(netio.SendHashedMessage(message), params...)
@@ -182,6 +194,11 @@ func getRemoteIp(req *http.Request) string {
 			ip = headerIp
 		}
 	}
+	return ip
+}
+
+func normalizeIp(ip string) string {
+
 	return strings.Split(ip, ":")[0]
 }
 
@@ -334,7 +351,7 @@ func startService(ctx context.Context, serviceName, remoteAddr string) (context.
 
 	tctx.ServiceName = serviceName
 	tctx.ServiceHash = netio.SendServiceName(serviceName)
-	tctx.RemoteIp = remoteAddr
+	tctx.RemoteIp = normalizeIp(remoteAddr)
 	return newCtx, tctx
 }
 
