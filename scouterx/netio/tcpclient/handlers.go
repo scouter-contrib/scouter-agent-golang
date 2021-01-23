@@ -16,6 +16,18 @@ const OBJECT_RESET_CACHE string = "OBJECT_RESET_CACHE";
 const TRIGGER_THREAD_DUMP string = "TRIGGER_THREAD_DUMP"
 const OBJECT_DUMP_FILE_LIST string = "OBJECT_DUMP_FILE_LIST"
 const OBJECT_DUMP_FILE_DETAIL string = "OBJECT_DUMP_FILE_DETAIL"
+const TRIGGER_BLOCK_PROFILE string = "TRIGGER_BLOCK_PROFILE"
+const TRIGGER_MUTEX_PROFILE string = "TRIGGER_MUTEX_PROFILE"
+
+const OBJECT_LIST_HEAP_DUMP string = "OBJECT_LIST_HEAP_DUMP"
+const OBJECT_DOWNLOAD_HEAP_DUMP string = "OBJECT_DOWNLOAD_HEAP_DUMP"
+const OBJECT_DELETE_HEAP_DUMP string = "OBJECT_DELETE_HEAP_DUMP"
+
+const OBJECT_CALL_CPU_PROFILE string = "OBJECT_CALL_CPU_PROFILE"
+const OBJECT_CALL_BLOCK_PROFILE string = "OBJECT_CALL_BLOCK_PROFILE"
+const OBJECT_CALL_MUTEX_PROFILE string = "OBJECT_CALL_MUTEX_PROFILE"
+
+
 const GET_CONFIGURE_WAS string = "GET_CONFIGURE_WAS"
 const SET_CONFIGURE_WAS string = "SET_CONFIGURE_WAS"
 const LIST_CONFIGURE_WAS string = "LIST_CONFIGURE_WAS"
@@ -54,6 +66,48 @@ func handle(cmd string, pack netdata.Pack, in *netdata.DataInputX, out *netdata.
 		}
 		dump.StreamDumpFileContents(pack, out)
 		return nil
+	case TRIGGER_BLOCK_PROFILE:
+		if ac.IsTrace() {
+			logger.Trace.Println("TRIGGER_BLOCK_PROFILE")
+		}
+		triggerBlockProfile(pack, out)
+		return nil
+	case TRIGGER_MUTEX_PROFILE:
+		if ac.IsTrace() {
+			logger.Trace.Println("TRIGGER_MUTEX_PROFILE")
+		}
+		triggerMutexProfile(pack, out)
+		return nil
+	case OBJECT_LIST_HEAP_DUMP:
+		if ac.IsTrace() {
+			logger.Trace.Println("OBJECT_LIST_HEAP_DUMP")
+		}
+		return listBinaryDump(pack, out)
+	case OBJECT_DOWNLOAD_HEAP_DUMP:
+		if ac.IsTrace() {
+			logger.Trace.Println("OBJECT_DOWNLOAD_HEAP_DUMP")
+		}
+		return downloadBinaryDump(pack, out)
+	case OBJECT_DELETE_HEAP_DUMP:
+		if ac.IsTrace() {
+			logger.Trace.Println("OBJECT_DELETE_HEAP_DUMP")
+		}
+		return deleteBinaryDump(pack, out)
+	case OBJECT_CALL_CPU_PROFILE:
+		if ac.IsTrace() {
+			logger.Trace.Println("OBJECT_CALL_CPU_PROFILE")
+		}
+		return triggerBinaryCpuProfile(pack, out)
+	case OBJECT_CALL_BLOCK_PROFILE:
+		if ac.IsTrace() {
+			logger.Trace.Println("OBJECT_CALL_BLOCK_PROFILE")
+		}
+		return triggerBinaryBlockProfile(pack, out)
+	case OBJECT_CALL_MUTEX_PROFILE:
+		if ac.IsTrace() {
+			logger.Trace.Println("OBJECT_CALL_MUTEX_PROFILE")
+		}
+		return triggerBinaryMutexProfile(pack, out)
 	case GET_CONFIGURE_WAS:
 		if ac.IsTrace() {
 			logger.Trace.Println("GET_CONFIGURE_WAS")
@@ -99,6 +153,67 @@ func handle(cmd string, pack netdata.Pack, in *netdata.DataInputX, out *netdata.
 	}
 
 	return nil
+}
+
+func deleteBinaryDump(pack netdata.Pack, out *netdata.DataOutputX) netdata.Pack {
+	paramPack, ok := pack.(*netdata.MapPack);
+	if !ok {
+		return nil
+	}
+	return dump.DeleteBinaryDumpFiles(paramPack.GetString("delfileName"))
+}
+
+func downloadBinaryDump(pack netdata.Pack, out *netdata.DataOutputX) netdata.Pack {
+	paramPack, ok := pack.(*netdata.MapPack);
+	if !ok {
+		return nil
+	}
+	dump.DownloadBinaryDumpFiles(out, paramPack.GetString("fileName"))
+	return nil
+}
+
+func listBinaryDump(pack netdata.Pack, out *netdata.DataOutputX) netdata.Pack {
+	return dump.ListBinaryDumpFiles()
+}
+
+func triggerBinaryCpuProfile(pack netdata.Pack, out *netdata.DataOutputX) netdata.Pack {
+	dump.ProfileBinaryCpu(30)
+	p := netdata.NewMapPack()
+	p.Put("success", netdata.NewBooleanValue(true));
+	p.Put("msg", "Success. it take about 30 seconds.");
+	return p
+}
+
+func triggerBlockProfile(pack netdata.Pack, out *netdata.DataOutputX) *netdata.MapPack {
+	dump.ProfileBlock(30, 1000 * 1000, 1)
+	p := netdata.NewMapPack()
+	p.Put("success", netdata.NewBooleanValue(true));
+	p.Put("msg", "Success. it take about 30 seconds.");
+	return p
+}
+
+func triggerMutexProfile(pack netdata.Pack, out *netdata.DataOutputX) *netdata.MapPack {
+	dump.ProfileMutex(30, 10, 1)
+	p := netdata.NewMapPack()
+	p.Put("success", netdata.NewBooleanValue(true));
+	p.Put("msg", "Success. it take about 30 seconds.");
+	return p
+}
+
+func triggerBinaryBlockProfile(pack netdata.Pack, out *netdata.DataOutputX) *netdata.MapPack {
+	dump.ProfileBlockBinaryDump(30, 1000 * 1000)
+	p := netdata.NewMapPack()
+	p.Put("success", netdata.NewBooleanValue(true));
+	p.Put("msg", "Success. it take about 30 seconds.");
+	return p
+}
+
+func triggerBinaryMutexProfile(pack netdata.Pack, out *netdata.DataOutputX) *netdata.MapPack {
+	dump.ProfileMutexBinaryDump(30, 5)
+	p := netdata.NewMapPack()
+	p.Put("success", netdata.NewBooleanValue(true));
+	p.Put("msg", "Success. it take about 30 seconds.");
+	return p
 }
 
 func GetGoroutineDetail(param netdata.Pack) *netdata.MapPack {

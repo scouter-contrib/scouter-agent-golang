@@ -20,6 +20,8 @@ func TestScouterAgent(T *testing.T) {
 	go loadTest()
 	go loadTest()
 
+	go mutexLock()
+
 	wg.Wait()
 }
 
@@ -29,6 +31,19 @@ func loadTest() {
 	}
 }
 
+func mutexLock() {
+	//runtime.SetMutexProfileFraction(5)
+	var mu sync.Mutex
+	for i := 0; i < 10; i++ {
+		go func() {
+			for {
+				mu.Lock()
+				time.Sleep(100 * time.Millisecond)
+				mu.Unlock()
+			}
+		}()
+	}
+}
 
 func randomSleeps() {
 	ctx := context.Background()
