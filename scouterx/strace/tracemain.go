@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util/keygen"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/counter"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
@@ -543,6 +544,39 @@ func StartApiCall(ctx context.Context, apiCallName string, address string) *netd
 		return nil
 	}
 
+	return startApiCall(apiCallName, tctx, address)
+}
+
+const interserviceGxidHeaderKey = "X-Scouter-Gxid"
+const interserviceCallerHeaderKey = "X-Scouter-Caller"
+const interserviceCalleeHeaderKey = "X-Scouter-Callee"
+const interserviceCallerObjHeaderKey = "X-Scouter-Caller-Obj"
+
+func StartApiCallWithPropagation(ctx context.Context, req *http.Request, apiCallName string, address string) *netdata.ApiCallStep {
+	defer common.ReportScouterPanic()
+	if ctx == nil {
+		return nil
+	}
+	tctx := tctxmanager.GetTraceContext(ctx)
+	if tctx == nil {
+		return nil
+	}
+
+	step := startApiCall(apiCallName, tctx, address)
+	if tctx.Gxid == 0 {
+		tctx.Gxid = tctx.Txid
+	}
+	if req != nil {
+		req.Header.Add(interserviceGxidHeaderKey, util.IntToXlogString32(tctx.Gxid))
+		req.Header.Add(interserviceCallerHeaderKey, util.IntToXlogString32(tctx.Txid))
+		req.Header.Add(interserviceCalleeHeaderKey, util.IntToXlogString32(step.Txid))
+		req.Header.Add(interserviceCallerObjHeaderKey, strconv.FormatInt(int64(ac.ObjHash), 10))
+	}
+
+	return step
+}
+
+func startApiCall(apiCallName string, tctx *netio.TraceContext, address string) *netdata.ApiCallStep {
 	step := netdata.NewApiCallStep()
 	step.Hash = netio.SendApicall(apiCallName)
 	step.StartTime = util.MillisToNow(tctx.StartTime)
@@ -550,10 +584,12 @@ func StartApiCall(ctx context.Context, apiCallName string, address string) *netd
 		step.Opt = 1
 	}
 	step.Address = address
+	step.Txid = keygen.Next()
 	tctx.Profile.Push(step)
 
 	return step
 }
+
 
 func EndApiCall(ctx context.Context, step *netdata.ApiCallStep, err error) {
 	defer common.ReportScouterPanic()
