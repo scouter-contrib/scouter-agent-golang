@@ -47,7 +47,7 @@ func GetInstance() *UDPSender {
 
 func reloadUdpSender() {
 	for {
-		time.Sleep(1000)
+		time.Sleep(1000 * time.Millisecond)
 		if serverAddr != ac.NetCollectorIP || udpServerPort != ac.NetCollectorUDPPort || udpMaxBytes != ac.UDPMaxBytes {
 			serverAddr = ac.NetCollectorIP
 			udpServerPort = ac.NetCollectorUDPPort
