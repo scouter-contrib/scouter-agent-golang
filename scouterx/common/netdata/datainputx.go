@@ -3,7 +3,9 @@ package netdata
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
+	"strconv"
 )
 
 // DataInputX is a byte buffer read stream struct
@@ -75,14 +77,21 @@ func (in *DataInputX) ReadFloat32() (float32, error) {
 	return value, err
 }
 
+func (in *DataInputX) ReadFloat64() (float64, error) {
+	in.offset +=8
+	var value float64
+	err := binary.Read(in.reader, binary.BigEndian, &value)
+	return value, err
+}
+
 // ReadString returns string value
 func (in *DataInputX) ReadString() (string, error) {
-	bytes, err := in.readBlob()
+	bytes, err := in.ReadBlob()
 	return string(bytes), err
 
 }
 
-func (in *DataInputX) readBlob() ([]byte, error) {
+func (in *DataInputX) ReadBlob() ([]byte, error) {
 	baseLen, err := in.ReadUInt8()
 	var length int32
 	switch baseLen {
@@ -147,6 +156,9 @@ func (in *DataInputX) ReadBoolean() (bool, error) {
 func (in *DataInputX) ReadValue() (Value, error) {
 	valueType, err := in.ReadInt8()
 	value := CreateValue(byte(valueType))
+	if value == nil {
+		return NewNilValue(), errors.New("[scouter] Not defined value type:" + strconv.FormatUint(uint64(valueType), 10))
+	}
 	readValue, err := value.Read(in)
 	return readValue, err
 
@@ -154,8 +166,20 @@ func (in *DataInputX) ReadValue() (Value, error) {
 
 func (in *DataInputX) ReadIntBytes() ([]byte, error) {
 	length, err := in.ReadInt32()
-	val := make([]byte, length)
-	_, err = in.reader.Read(val)
+	b, err := in.Read(length)
+	return b, err
+	//val := make([]byte, length)
+	//_, err = in.reader.Read(val)
+	//if err != nil {
+	//	val = []byte{}
+	//}
+	//return val, err
+}
+
+func (in *DataInputX) Read(len int32) ([]byte, error) {
+	in.offset += len
+	val := make([]byte, len)
+	_, err := in.reader.Read(val)
 	if err != nil {
 		val = []byte{}
 	}

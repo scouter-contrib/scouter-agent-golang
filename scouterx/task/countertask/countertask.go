@@ -1,6 +1,7 @@
 package countertask
 
 import (
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/counter"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/counter/gocounter"
@@ -35,6 +36,8 @@ func start5MinCounter() {
 }
 
 func getAllCounterOnPack() netdata.Pack {
+	defer common.ReportScouterPanic()
+
 	ac := conf.GetInstance()
 	pack := netdata.NewPerfCounterPack()
 	pack.ObjName = ac.ObjName

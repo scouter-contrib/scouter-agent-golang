@@ -61,3 +61,25 @@ func TestCacheSet(t *testing.T) {
 		t.Error("no matched value.")
 	}
 }
+
+//func TestValues(t *testing.T) {
+//	cacheMap := New(9000)
+//
+//	go func() {
+//		for {
+//			time.Sleep(10 * time.Nanosecond)
+//			rand := rand.Intn(30000)
+//			cacheMap.Add(rand, rand)
+//		}
+//	}()
+//
+//	go func() {
+//		for {
+//			values := cacheMap.GetValues()
+//			fmt.Println(strconv.Itoa(len(values)))
+//			time.Sleep(10 * time.Millisecond)
+//		}
+//	}()
+//
+//	time.Sleep(2000  * time.Millisecond)
+//}

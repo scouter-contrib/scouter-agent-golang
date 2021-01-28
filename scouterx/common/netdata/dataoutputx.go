@@ -101,6 +101,13 @@ func (out *DataOutputX) WriteFloat32(value float32) (*DataOutputX, error) {
 	return out, err
 }
 
+// WriteFloat64 writes float64 value to buffer
+func (out *DataOutputX) WriteFloat64(value float64) (*DataOutputX, error) {
+	out.written += 8
+	err := binary.Write(out.writer, binary.BigEndian, value)
+	return out, err
+}
+
 // WriteDecimal writes number type value to buffer
 func (out *DataOutputX) WriteDecimal(value int64) (*DataOutputX, error) {
 	var err error

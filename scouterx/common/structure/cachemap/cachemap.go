@@ -1,7 +1,7 @@
 package cachemap
 
 import (
-	"github.com/emirpasic/gods/lists/singlylinkedlist"
+	"github.com/emirpasic/gods/maps/linkedhashmap"
 	"strconv"
 	"sync"
 )
@@ -9,17 +9,15 @@ import (
 var lock sync.RWMutex
 
 type CacheMap struct {
-	table    map[interface{}]interface{}
-	ordering *singlylinkedlist.List
-	orderPos map[interface{}]int
-	maxSize  int
+	table           *linkedhashmap.Map
+	maxSize         int
 }
 
 func (m *CacheMap) GetValues() []interface{} {
-	l := make([]interface{}, 0, int(float32(len(m.table)) * 1.2))
+	l := make([]interface{}, 0, int(float32(m.table.Size()) * 1.2))
 	lock.RLock()
 	defer lock.RUnlock()
-	for _, v := range m.table {
+	for _, v := range m.table.Values() {
 		lock.RUnlock()
 		if v != nil {
 			l = append(l, v)
@@ -31,10 +29,8 @@ func (m *CacheMap) GetValues() []interface{} {
 
 func New(maxSize int) *CacheMap {
 	m := &CacheMap{
-		table:    make(map[interface{}]interface{}),
-		ordering: singlylinkedlist.New(),
-		orderPos: make(map[interface{}]int),
-		maxSize:  maxSize,
+		table:           linkedhashmap.New(),
+		maxSize:         maxSize,
 	}
 	return m
 }
@@ -42,40 +38,39 @@ func New(maxSize int) *CacheMap {
 func (m *CacheMap) Add(key interface{}, item interface{}) {
 	lock.Lock()
 	defer lock.Unlock()
-	if _, contains := m.table[key]; !contains {
+	if _, contains := m.table.Get(key); !contains {
 		m.removeExceeded()
-		m.table[key] = item
-		m.ordering.Append(key)
-		m.orderPos[key] = m.ordering.Size() - 1
+		m.table.Put(key, item)
 	}
 }
 
 func (m *CacheMap) Remove(key interface{}) {
 	lock.Lock()
 	defer lock.Unlock()
-	delete(m.table, key)
-	index, contains := m.orderPos[key]
-	if contains {
-		m.ordering.Remove(index)
-		delete(m.orderPos, key)
-	}
+	m.table.Remove(key)
 }
 
 func (m *CacheMap) removeExceeded() {
-	for m.ordering.Size() >= m.maxSize {
-		key, exist := m.ordering.Get(0)
-		if exist {
-			m.ordering.Remove(0)
-			delete(m.orderPos, key)
-			delete(m.table, key)
-		}
+	removalCount := m.table.Size() - m.maxSize
+	if removalCount < 0 {
+		return
+	}
+	var removals []interface{}
+	iterator := m.table.Iterator()
+
+	for i := removalCount; i >= 0; i-- {
+		iterator.Next()
+		removals = append(removals, iterator.Key())
+	}
+	for _, removal := range removals {
+		m.table.Remove(removal)
 	}
 }
 
 func (m *CacheMap) Contains(key interface{}) bool {
 	lock.RLock()
 	defer lock.RUnlock()
-	if _, contains := m.table[key]; !contains {
+	if _, contains := m.table.Get(key); !contains {
 		return false
 	}
 	return true
@@ -84,7 +79,12 @@ func (m *CacheMap) Contains(key interface{}) bool {
 func (m *CacheMap) Get(key interface{}) interface{} {
 	lock.RLock()
 	defer lock.RUnlock()
-	return m.table[key]
+	value, found := m.table.Get(key)
+	if !found {
+		return nil
+	} else {
+		return value
+	}
 }
 
 func (m *CacheMap) Empty() bool {
@@ -94,17 +94,15 @@ func (m *CacheMap) Empty() bool {
 }
 
 func (m *CacheMap) Size() int {
-	return m.ordering.Size()
+	return m.table.Size()
 }
 
 func (m *CacheMap) Clear() {
 	lock.Lock()
 	defer lock.Unlock()
-	m.table = make(map[interface{}]interface{})
-	m.ordering.Clear()
-	m.orderPos = make(map[interface{}]int)
+	m.table = linkedhashmap.New()
 }
 
 func (m *CacheMap) String() string {
-	return "CacheMap[" + strconv.Itoa(m.ordering.Size()) + "]"
+	return "CacheMap[" + strconv.Itoa(m.table.Size()) + "]"
 }
