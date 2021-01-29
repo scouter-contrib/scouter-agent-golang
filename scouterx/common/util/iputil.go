@@ -14,7 +14,7 @@ func IpToBytes(ip string) []byte {
 		return emptyIp
 	}
 	for i, part := range split {
-		v, err := strconv.ParseInt(part, 10, 8)
+		v, err := strconv.ParseUint(part, 10, 8)
 		if (err != nil || v < 0) {
 			return emptyIp
 		}

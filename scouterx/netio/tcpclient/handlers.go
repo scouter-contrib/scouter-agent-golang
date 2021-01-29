@@ -148,7 +148,7 @@ func handle(cmd string, pack netdata.Pack, in *netdata.DataInputX, out *netdata.
 		return GetGoroutineDetail(pack)
 	default:
 		if ac.IsTrace() {
-			logger.Trace.Println("UNKNWON-HANDLER: " + cmd)
+			logger.Trace.Println("UNKNOWN-HANDLER: " + cmd)
 		}
 	}
 

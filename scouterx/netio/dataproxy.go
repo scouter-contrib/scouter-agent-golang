@@ -36,6 +36,7 @@ func ResetTextSent() {
 	loginSent.Clear()
 	descSent.Clear()
 	stackElementSent.Clear()
+	hashMessageSent.Clear()
 }
 func reportScouterPanicFinal() {
 	if r := recover(); r != nil {
