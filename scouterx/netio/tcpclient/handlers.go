@@ -122,20 +122,17 @@ func handle(cmd string, pack netdata.Pack, in *netdata.DataInputX, out *netdata.
 		if ac.IsTrace() {
 			logger.Trace.Println("LIST_CONFIGURE_WAS")
 		}
-		//TODO
-		return netdata.NewMapPack()
+		return listConfig()
 	case CONFIGURE_VALUE_TYPE:
 		if ac.IsTrace() {
 			logger.Trace.Println("CONFIGURE_VALUE_TYPE")
 		}
-		//TODO
-		return netdata.NewMapPack()
+		return listConfigValueType()
 	case CONFIGURE_DESC:
 		if ac.IsTrace() {
 			logger.Trace.Println("CONFIGURE_DESC")
 		}
-		//TODO
-		return netdata.NewMapPack()
+		return listConfigDescription()
 	case OBJECT_ACTIVE_SERVICE_LIST:
 		if ac.IsTrace() {
 			logger.Trace.Println("OBJECT_ACTIVE_SERVICE_LIST")
@@ -283,11 +280,18 @@ func GetActiveList() *netdata.MapPack {
 
 func loadConfig() *netdata.MapPack {
 	configText := conf.LoadConfigText()
-	configKeys := conf.LoadConfigKeys()
 
 	mp := netdata.NewMapPack()
-	mp.Put("configKey", configKeys)
 	mp.Put("agentConfig", configText)
+
+	descMap := conf.GetConfigureDescMap()
+	keyList := mp.NewList("configKey")
+	for it := descMap.Iterator(); it.Next(); {
+		switch desc := it.Value().(type) {
+		case conf.ConfigureDesc:
+			keyList.AddString(desc.Key)
+		}
+	}
 	return mp
 }
 
@@ -311,3 +315,47 @@ func ResetCache(pack netdata.Pack) netdata.Pack {
 	return pack
 }
 
+func listConfig() *netdata.MapPack {
+	mp := netdata.NewMapPack()
+	keyList := mp.NewList("key")
+	valueList := mp.NewList("value")
+	defaultsList := mp.NewList("default")
+
+	descMap := conf.GetConfigureDescMap()
+
+	for it := descMap.Iterator(); it.Next(); {
+		switch desc := it.Value().(type) {
+		case conf.ConfigureDesc:
+			keyList.AddString(desc.Key)
+			valueList.AddString(desc.Value)
+			defaultsList.AddString(desc.DefaultValue)
+		}
+	}
+	return mp
+}
+
+func listConfigDescription() *netdata.MapPack {
+	mp := netdata.NewMapPack()
+
+	descMap := conf.GetConfigureDescMap()
+	for it := descMap.Iterator(); it.Next(); {
+		switch desc := it.Value().(type) {
+		case conf.ConfigureDesc:
+			mp.Put(desc.Key, desc.Desc)
+		}
+	}
+	return mp
+}
+
+func listConfigValueType() *netdata.MapPack {
+	mp := netdata.NewMapPack()
+
+	descMap := conf.GetConfigureDescMap()
+	for it := descMap.Iterator(); it.Next(); {
+		switch desc := it.Value().(type) {
+		case conf.ConfigureDesc:
+			mp.Put(desc.Key, int32(desc.ValueType))
+		}
+	}
+	return mp
+}

@@ -1,15 +1,8 @@
 package conf
 
 import (
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"io/ioutil"
 )
-
-func LoadConfigKeys() *netdata.ListValue {
-	lv := new(netdata.ListValue)
-	//TODO
-	return lv
-}
 
 func LoadConfigText() string {
 	filePath := getConfFilePath()
