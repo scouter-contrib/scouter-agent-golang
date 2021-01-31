@@ -13,6 +13,7 @@ var keygen *KeyGen
 
 // A KeyGen is a source of random numbers
 type KeyGen struct {
+	sync.Mutex
 	random *rand.Rand
 }
 
@@ -29,7 +30,10 @@ func getInstance() *KeyGen {
 
 // Next returns a non-negative pseudo-random 63-bit integer
 func Next() int64 {
-	return keygen.random.Int63()
+	keygen.Lock()
+	key := keygen.random.Int63()
+	keygen.Unlock()
+	return key
 }
 
 func init() {
