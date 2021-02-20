@@ -26,18 +26,6 @@ func StartTracingMode() {
 	tcpclient.StartTcp()
 }
 
-func goid() int {
-	defer common.ReportScouterPanic()
-	var buf [64]byte
-	n := runtime.Stack(buf[:], false)
-	idField := strings.Fields(strings.TrimPrefix(string(buf[:n]), "goroutine "))[0]
-	id, err := strconv.Atoi(idField)
-	if err != nil {
-		panic(fmt.Sprintf("cannot get goroutine id: %v", err))
-	}
-	return id
-}
-
 func IsStream(ctx context.Context) bool {
 	common.ReportScouterPanic()
 	if ctx == nil {
@@ -347,7 +335,7 @@ func startService(ctx context.Context, serviceName, remoteAddr string) (context.
 	tctxmanager.Start(tctx)
 
 	tctx.Gxid = tctx.Txid
-	tctx.Goid = goid()
+	tctx.Goid = common.Goid()
 	tctx.Profile.Add(netdata.NewMessageStep(fmt.Sprintf("goroutine:%d", tctx.Goid), 0))
 
 	tctx.ServiceName = serviceName

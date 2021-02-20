@@ -59,6 +59,7 @@ type Configure struct {
 
 	StuckServiceBaseTimeMs int
 	StuckServiceRemoveEnabled bool
+	StuckServiceAlertEnabled bool
 
 	TraceActiveserviceYellowTime int
 	TraceActiveserviceRedTime int
@@ -137,6 +138,7 @@ func GetInstance() *Configure {
 
 		configure.StuckServiceBaseTimeMs = 300000
 		configure.StuckServiceRemoveEnabled = true
+		configure.StuckServiceAlertEnabled = false
 
 		configure.TraceActiveserviceYellowTime = 3000
 		configure.TraceActiveserviceRedTime = 8000

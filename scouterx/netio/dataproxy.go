@@ -158,6 +158,8 @@ func SendAlert(level netdata.AlertLevel, title, message string) {
 		return
 	}
 	pack := netdata.NewAlertPack()
+	pack.ObjType = ac.ObjType
+	pack.ObjHash = ac.ObjHash
 	pack.Level = level
 	pack.Title = title
 	pack.Message = message
