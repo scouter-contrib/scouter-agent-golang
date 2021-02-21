@@ -220,10 +220,13 @@ func GetGoroutineDetail(param netdata.Pack) *netdata.MapPack {
 
 	paramPack, ok := param.(*netdata.MapPack);
 	if !ok {
+		p.Put("Stack Trace", "[info] scouter request param error.");
 		return p
 	}
-	tctx := tctxmanager.GetTraceContextByTxid(paramPack.GetInt64("txid"))
+	txid := paramPack.GetInt64("txid")
+	tctx := tctxmanager.GetTraceContextByTxid(txid)
 	if tctx == nil {
+		p.Put("Stack Trace", "[info] no traceContext. txid:" + util.IntToXlogString32(txid))
 		return p
 	}
 	goid := tctx.Goid
