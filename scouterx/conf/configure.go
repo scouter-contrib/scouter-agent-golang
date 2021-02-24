@@ -138,7 +138,7 @@ func GetInstance() *Configure {
 
 		configure.StuckServiceBaseTimeMs = 300000
 		configure.StuckServiceRemoveEnabled = true
-		configure.StuckServiceAlertEnabled = false
+		configure.StuckServiceAlertEnabled = true
 
 		configure.TraceActiveserviceYellowTime = 3000
 		configure.TraceActiveserviceRedTime = 8000
@@ -349,6 +349,7 @@ func (conf *Configure) addToConf(props *properties.Properties) {
 
 	conf.StuckServiceBaseTimeMs = intOf(props, "stuck_service_base_time_ms", 300000, "")
 	conf.StuckServiceRemoveEnabled = boolOf(props, "stuck_service_remove_enabled", true, "")
+	conf.StuckServiceAlertEnabled = boolOf(props, "stuck_service_alert_enabled", true, "")
 
 	conf.TraceActiveserviceYellowTime = intOf(props, "trace_activeservice_yellow_time", 3000, "")
 	conf.TraceActiveserviceRedTime = intOf(props, "trace_activeservice_red_time", 8000, "")
