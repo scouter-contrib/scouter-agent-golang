@@ -27,7 +27,7 @@ func StartTracingMode() {
 }
 
 func IsStream(ctx context.Context) bool {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return false
 	}
@@ -39,7 +39,7 @@ func IsStream(ctx context.Context) bool {
 }
 
 func SetAsStream(ctx context.Context) bool {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return false
 	}
@@ -52,7 +52,7 @@ func SetAsStream(ctx context.Context) bool {
 }
 
 func MarkAsError(ctx context.Context, errorMessage string) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -67,7 +67,7 @@ func MarkAsError(ctx context.Context, errorMessage string) {
 }
 
 func MarkAsErrorForcibly(ctx context.Context, errorMessage string) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -79,7 +79,7 @@ func MarkAsErrorForcibly(ctx context.Context, errorMessage string) {
 }
 
 func SetServiceNameForcibly(ctx context.Context, serviceName string) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		return
 	}
@@ -192,7 +192,7 @@ func normalizeIp(ip string) string {
 }
 
 func EndHttpService(ctx context.Context, req *http.Request, res *http.Response) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	//TODO body (of specific service) profile from req.body
 
 	if res != nil {
@@ -209,7 +209,7 @@ func EndHttpService(ctx context.Context, req *http.Request, res *http.Response) 
 }
 
 func StartService(ctx context.Context, serviceName, remoteIp string) (newCtx context.Context) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -223,13 +223,13 @@ func StartService(ctx context.Context, serviceName, remoteIp string) (newCtx con
 }
 
 func EndService(ctx context.Context) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	endAnyService(ctx)
 }
 
 func StartNewInheritanceService(ctx context.Context, parentTctx *netio.TraceContext) (newCtx context.Context, newTctx *netio.TraceContext) {
 	//TODO ctx를 전달받지 않아야 될 것 같긴한데...
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -287,7 +287,7 @@ func inheritTctx(newTctx *netio.TraceContext, parentTctx *netio.TraceContext) *n
 //	myFunc(cascadeGoCtx)
 //})
 func GoWithTrace(ctx context.Context, serviceName string, func4Goroutine func(cascadeGoCtx context.Context)) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	newCtx, childTctx := startChildGoroutineService(ctx, serviceName)
 	go func() {
 		if childTctx != nil {
@@ -326,7 +326,7 @@ func startChildGoroutineService(ctx context.Context, serviceName string) (ctx4Go
 }
 
 func endChildGoroutineService(ctx context.Context) {
-	common.ReportScouterPanic()
+	defer common.ReportScouterPanic()
 	endAnyService(ctx)
 }
 

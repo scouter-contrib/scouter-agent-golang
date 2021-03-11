@@ -84,7 +84,9 @@ func StepsToBytes(steps []Step) []byte {
 	}
 	dout := NewDataOutputX(nil)
 	for _, step := range steps {
-		dout.WriteStep(step)
+		if step != nil {
+			dout.WriteStep(step)
+		}
 	}
 	return dout.Bytes()
 }
