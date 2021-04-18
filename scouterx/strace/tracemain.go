@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util/keygen"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/counter"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/tcpclient"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/strace/tctxmanager"
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -356,6 +356,7 @@ func endAnyService(ctx context.Context) {
 }
 
 func endStuckServiceForcibly(tctx *netio.TraceContext) {
+	defer common.ReportScouterPanic()
 	if ac.StuckServiceRemoveEnabled {
 		step := netdata.NewPMessageStep(util.MillisToNow(tctx.StartTime))
 		step.SetMessage(netio.SendHashedMessage("Service currently may running, not finished!"))

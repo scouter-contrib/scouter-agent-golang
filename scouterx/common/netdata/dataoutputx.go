@@ -175,6 +175,8 @@ func (out *DataOutputX) WriteString(value string) (*DataOutputX, error) {
 	var err error
 	if length == 0 {
 		_, err = out.WriteInt8(0)
+	} else if length > 100000 {
+		err = out.WriteBlob([]byte("huge string omitted..."))
 	} else {
 		err = out.WriteBlob([]byte(value))
 	}
