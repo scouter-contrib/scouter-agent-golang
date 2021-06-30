@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/cachemap"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/lra"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio"
 	"time"
@@ -14,7 +14,7 @@ type ctxKey struct{}
 var tctxKey = ctxKey{}
 
 var ac = conf.GetInstance()
-var txidMap = cachemap.New(10000)
+var txidMap = lra.New(10000)
 
 var fEndStuckServiceForcibly func(tctx *netio.TraceContext)
 var noopTctx = netio.NewNoopTraceContext()

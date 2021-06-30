@@ -2,28 +2,28 @@ package netio
 
 import (
 	"fmt"
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/cacheset"
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
-	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/udpsender"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/netdata/texttype"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/structure/lra"
 	"github.com/scouter-contrib/scouter-agent-golang/scouterx/common/util"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/conf"
+	"github.com/scouter-contrib/scouter-agent-golang/scouterx/netio/udpsender"
 	"time"
 )
 
 var ac = conf.GetInstance()
 
-var serviceNameSent = cacheset.New(10000)
-var objNameSent = cacheset.New(100)
-var refererSent = cacheset.New(10000)
-var userAgentSent = cacheset.New(10000)
-var methodSent = cacheset.New(10000)
-var apicallSent = cacheset.New(10000)
-var errorSent = cacheset.New(10000)
-var loginSent = cacheset.New(10000)
-var descSent = cacheset.New(10000)
-var stackElementSent = cacheset.New(10000)
-var hashMessageSent = cacheset.New(10000)
+var serviceNameSent = lra.New(10000)
+var objNameSent = lra.New(100)
+var refererSent = lra.New(10000)
+var userAgentSent = lra.New(10000)
+var methodSent = lra.New(10000)
+var apicallSent = lra.New(10000)
+var errorSent = lra.New(10000)
+var loginSent = lra.New(10000)
+var descSent = lra.New(10000)
+var stackElementSent = lra.New(10000)
+var hashMessageSent = lra.New(10000)
 
 func ResetTextSent() {
 	serviceNameSent.Clear()
@@ -57,7 +57,7 @@ func SendServiceName(name string) int32 {
 	if serviceNameSent.Contains(hash) {
 		return hash
 	}
-	serviceNameSent.Add(hash)
+	serviceNameSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.SERVICE, hash, name})
 	return hash
 }
@@ -70,7 +70,7 @@ func SendHashedMessage(name string) int32 {
 	if hashMessageSent.Contains(hash) {
 		return hash
 	}
-	hashMessageSent.Add(hash)
+	hashMessageSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.HASH_MSG, hash, name})
 	return hash
 }
@@ -83,7 +83,7 @@ func SendObjName(name string) int32 {
 	if objNameSent.Contains(hash) {
 		return hash
 	}
-	objNameSent.Add(hash)
+	objNameSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.OBJECT, hash, name})
 	return hash
 }
@@ -96,7 +96,7 @@ func SendReferer(name string) int32 {
 	if refererSent.Contains(hash) {
 		return hash
 	}
-	refererSent.Add(hash)
+	refererSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.REFERER, hash, name})
 	return hash
 }
@@ -109,7 +109,7 @@ func SendUserAgent(name string) int32 {
 	if userAgentSent.Contains(hash) {
 		return hash
 	}
-	userAgentSent.Add(hash)
+	userAgentSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.USER_AGENT, hash, name})
 	return hash
 }
@@ -122,7 +122,7 @@ func SendMethod(name string) int32 {
 	if methodSent.Contains(hash) {
 		return hash
 	}
-	methodSent.Add(hash)
+	methodSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.METHOD, hash, name})
 	return hash
 }
@@ -135,7 +135,7 @@ func SendApicall(name string) int32 {
 	if apicallSent.Contains(hash) {
 		return hash
 	}
-	apicallSent.Add(hash)
+	apicallSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.APICALL, hash, name})
 	return hash
 }
@@ -148,7 +148,7 @@ func SendError(name string) int32 {
 	if errorSent.Contains(hash) {
 		return hash
 	}
-	errorSent.Add(hash)
+	errorSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.ERROR, hash, name})
 	return hash
 }
@@ -175,7 +175,7 @@ func SendLogin(name string) int32 {
 	if loginSent.Contains(hash) {
 		return hash
 	}
-	loginSent.Add(hash)
+	loginSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.LOGIN, hash, name})
 	return hash
 }
@@ -188,7 +188,7 @@ func SendDesc(name string) int32 {
 	if descSent.Contains(hash) {
 		return hash
 	}
-	descSent.Add(hash)
+	descSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.DESC, hash, name})
 	return hash
 }
@@ -201,7 +201,7 @@ func SendStackElement(name string) int32 {
 	if stackElementSent.Contains(hash) {
 		return hash
 	}
-	stackElementSent.Add(hash)
+	stackElementSent.AddKey(hash)
 	udpsender.GetInstance().AddPack(&netdata.TextPack{texttype.STACK_ELEMENT, hash, name})
 	return hash
 }
