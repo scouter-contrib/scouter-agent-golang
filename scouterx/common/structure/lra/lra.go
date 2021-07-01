@@ -114,8 +114,8 @@ func (c *Cache) Clear() {
 			c.OnEvicted(kv.key, kv.value)
 		}
 	}
-	c.lst = nil
-	c.table = nil
+	c.lst = list.New()
+	c.table = make(map[interface{}]*list.Element)
 }
 
 func (c *Cache) GetValues() []interface{} {
